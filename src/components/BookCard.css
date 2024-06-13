@@ -1,0 +1,51 @@
+.book-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f4f4f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  width: 200px;
+  margin: 20px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.book-card:hover {
+  transform: translateY(-10px);
+}
+
+.cover-container {
+  width: 100%;
+  overflow: hidden;
+}
+
+.book-cover {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.book-details {
+  padding: 15px;
+  text-align: center;
+}
+
+.book-title {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #333;
+  margin: 10px 0;
+}
+
+.book-author {
+  font-size: 1em;
+  color: #666;
+  margin: 5px 0;
+}
+
+.book-isdn {
+  font-size: 0.9em;
+  color: #999;
+  margin: 5px 0;
+}
