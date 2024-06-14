@@ -1,114 +1,76 @@
 // src/components/CustomBarcodeScanner.jsx
-import React, { useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
+import Webcam from "react-webcam";
 import Quagga from "quagga";
 
 const CustomBarcodeScanner = ({ onScan }) => {
+  const webcamRef = useRef(null);
   const [scanning, setScanning] = useState(false);
-  const [result, setResult] = useState("");
-  const [statusMessage, setStatusMessage] = useState("");
+  const [intervalId, setIntervalId] = useState(null);
 
   useEffect(() => {
     if (scanning) {
-      Quagga.init(
+      const id = setInterval(handleScan, 1000);
+      setIntervalId(id);
+    } else if (intervalId) {
+      clearInterval(intervalId);
+      setIntervalId(null);
+    }
+  }, [scanning]);
+
+  const handleScan = useCallback(() => {
+    if (!webcamRef.current) return;
+
+    const imageSrc = webcamRef.current.getScreenshot();
+    if (!imageSrc) return;
+
+    console.log("Capturing image...");
+
+    const img = new Image();
+    img.src = imageSrc;
+    img.onload = () => {
+      Quagga.decodeSingle(
         {
-          inputStream: {
-            type: "LiveStream",
-            constraints: {
-              facingMode: "environment", // or user for the front camera
-            },
-            area: {
-              top: "0%",
-              right: "0%",
-              left: "0%",
-              bottom: "0%", // defines the detection area
-            },
-          },
-          locator: {
-            patchSize: "medium", // x-small, small, medium, large, x-large
-            halfSample: true,
-          },
-          numOfWorkers: 4,
-          frequency: 10,
-          decoder: {
-            readers: ["ean_reader", "upc_reader", "code_128_reader"], // Add other readers if needed
-          },
           locate: true,
+          src: imageSrc,
+          numOfWorkers: 0, // Needs to be 0 when used with webpack
+          inputStream: {
+            size: 800, // restrict input-size to be 800
+          },
+          decoder: {
+            readers: ["ean_reader"], // List of active readers
+          },
         },
-        (err) => {
-          if (err) {
-            console.error(err);
-            setStatusMessage("Error initializing Quagga");
-            return;
+        (result) => {
+          if (result && result.codeResult) {
+            console.log("Scanned result: ", result.codeResult.code);
+            onScan(result.codeResult.code);
+            setScanning(false);
+          } else {
+            console.log("No result from scanner.");
           }
-          console.log("Initialization finished. Ready to start");
-          Quagga.start();
         }
       );
-
-      Quagga.onProcessed((result) => {
-        var drawingCtx = Quagga.canvas.ctx.overlay,
-          drawingCanvas = Quagga.canvas.dom.overlay;
-
-        if (result) {
-          if (result.boxes) {
-            drawingCtx.clearRect(0, 0, drawingCanvas.getAttribute("width"), drawingCanvas.getAttribute("height"));
-            result.boxes
-              .filter(function (box) {
-                return box !== result.box;
-              })
-              .forEach(function (box) {
-                Quagga.ImageDebug.drawPath(box, { x: 0, y: 1 }, drawingCtx, { color: "green", lineWidth: 2 });
-              });
-          }
-
-          if (result.box) {
-            Quagga.ImageDebug.drawPath(result.box, { x: 0, y: 1 }, drawingCtx, { color: "#00F", lineWidth: 2 });
-          }
-
-          if (result.codeResult && result.codeResult.code) {
-            Quagga.ImageDebug.drawPath(result.line, { x: "x", y: "y" }, drawingCtx, { color: "red", lineWidth: 3 });
-          }
-        }
-      });
-
-      Quagga.onDetected((data) => {
-        const code = data.codeResult.code;
-        console.log("Barcode detected and processed : [" + code + "]", data);
-        onScan(code);
-        setResult(code);
-        setStatusMessage("Barcode detected: " + code);
-        Quagga.stop();
-        setScanning(false);
-      });
-
-      return () => {
-        Quagga.offDetected();
-        Quagga.stop();
-      };
-    }
-  }, [scanning, onScan]);
-
-  const handleStartScan = () => {
-    setScanning(true);
-    setResult("");
-    setStatusMessage("Scanning...");
-  };
+    };
+  }, [onScan]);
 
   return (
-    <div className="scanner">
-      <button onClick={handleStartScan} className="bg-blue-500 text-white py-2 px-4 rounded">
-        Start Scanning
+    <div className="w-full flex flex-col items-center">
+      <button onClick={() => setScanning(!scanning)} className="mb-4 bg-blue-500 text-white px-4 py-2 rounded">
+        {scanning ? "Stop Scan" : "Start Scan"}
       </button>
       {scanning && (
-        <div className="mt-4">
-          <div id="interactive" className="viewport" />
-          <p>{statusMessage}</p>
-        </div>
-      )}
-      {!scanning && result && (
-        <div className="mt-4">
-          <p>{statusMessage}</p>
-        </div>
+        <Webcam
+          audio={false}
+          ref={webcamRef}
+          screenshotFormat="image/jpeg"
+          className="w-full"
+          videoConstraints={{
+            facingMode: "environment",
+            width: 1920,
+            height: 1080,
+          }}
+        />
       )}
     </div>
   );
