@@ -6,22 +6,8 @@ import { db } from "../firebaseConfig";
 import BookCard from "./BookCard";
 import "./BookList.css";
 
-const BookList = ({ scannedIsbn }) => {
-  const [books, setBooks] = useState([]);
-  const [loading, setLoading] = useState(true);
+const BookList = ({ scannedIsbn, books, loading }) => {
   const [scanStatus, setScanStatus] = useState("");
-
-  useEffect(() => {
-    const fetchBooks = async () => {
-      const booksCollection = collection(db, "books");
-      const booksSnapshot = await getDocs(booksCollection);
-      const booksList = booksSnapshot.docs.map((doc) => doc.data());
-      setBooks(booksList);
-      setLoading(false);
-    };
-
-    fetchBooks();
-  }, []);
 
   useEffect(() => {
     if (scannedIsbn) {

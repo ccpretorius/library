@@ -64,16 +64,18 @@ const App = () => {
   return (
     <AuthProvider>
       <Router>
-        <Navbar />
-        <div className="container mx-auto p-4">
-          <Routes>
-            <Route path="/" element={<BookList books={books} />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-          </Routes>
-          <CustomBarcodeScanner onScan={handleScan} />
-          <p>{scanStatus}</p>
+        <div className="min-h-screen flex flex-col">
+          <Navbar />
+          <div className="flex-1 container mx-auto p-4">
+            <Routes>
+              <Route path="/" element={<BookList books={books} loading={loading} />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+            </Routes>
+            <CustomBarcodeScanner onScan={handleScan} />
+            <p>{scanStatus}</p>
+          </div>
         </div>
       </Router>
     </AuthProvider>
