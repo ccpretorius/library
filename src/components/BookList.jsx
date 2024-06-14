@@ -32,7 +32,7 @@ const BookList = () => {
   return (
     <div className="book-list">
       {books.map((book) => (
-        <BookCard key={book.isdn} {...book} />
+        <BookCard key={book.isbn} {...book} />
       ))}
     </div>
   );
