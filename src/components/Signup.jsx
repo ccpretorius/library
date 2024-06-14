@@ -6,12 +6,13 @@ import { useAuth } from "../contexts/AuthContext";
 const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const { signup, state } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await signup(email, password);
+    await signup(email, password, displayName);
     navigate("/");
   };
 
@@ -21,6 +22,10 @@ const Signup = () => {
         <h2 className="text-2xl font-semibold mb-4 text-center">Sign Up</h2>
         {state.error && <p className="text-red-500 text-center">{state.error}</p>}
         <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block mb-2">Display Name</label>
+            <input type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} className="w-full p-2 border border-gray-300 rounded" required />
+          </div>
           <div className="mb-4">
             <label className="block mb-2">Email</label>
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-2 border border-gray-300 rounded" required />

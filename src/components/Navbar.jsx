@@ -19,19 +19,19 @@ const Navbar = () => {
               <Link to="/my-library" className="text-white mr-4">
                 My Library
               </Link>
-              <span className="text-white mr-4">Welcome, {state.user.email}</span>
-              <button onClick={logout} className="text-white px-4 py-2 rounded bg-gray-800 border border-white">
+              <span className="text-white mr-4">Welcome, {state.user.displayName || state.user.email}</span>
+              <button onClick={logout} className="text-white px-4 py-2 rounded bg-gray-800 border border-white hover:bg-gray-700">
                 Logout
               </button>
             </>
           ) : (
             <>
               {location.pathname !== "/login" && (
-                <Link to="/login" className="bg-blue-500 text-white px-4 py-2 rounded mr-4">
+                <Link to="/login" className="bg-blue-500 text-white px-4 py-2 rounded mr-4 hover:bg-blue-600 hover:text-white hover:font-bold">
                   Log In
                 </Link>
               )}
-              <Link to="/signup" className="bg-blue-500 text-white px-4 py-2 rounded">
+              <Link to="/signup" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 hover:text-white hover:font-bold">
                 Sign Up
               </Link>
             </>

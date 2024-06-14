@@ -1,7 +1,9 @@
 // src/contexts/AuthContext.js
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 import { auth } from "../firebaseConfig";
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, sendPasswordResetEmail, updateProfile } from "firebase/auth";
+import { collection, doc, setDoc } from "firebase/firestore";
+import { db } from "../firebaseConfig";
 
 const AuthContext = createContext();
 
@@ -51,11 +53,26 @@ export const AuthProvider = ({ children }) => {
       });
   };
 
-  const signup = (email, password) => {
+  const signup = (email, password, displayName) => {
     dispatch({ type: "SET_LOADING" });
     return createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        dispatch({ type: "LOGIN", payload: userCredential.user });
+        const user = userCredential.user;
+
+        return updateProfile(user, { displayName })
+          .then(() => {
+            return setDoc(doc(db, "users", user.uid), {
+              uid: user.uid,
+              displayName,
+              email: user.email,
+            });
+          })
+          .then(() => {
+            dispatch({ type: "LOGIN", payload: { ...user, displayName } });
+          })
+          .catch((error) => {
+            dispatch({ type: "AUTH_ERROR", payload: error.message });
+          });
       })
       .catch((error) => {
         dispatch({ type: "AUTH_ERROR", payload: error.message });
