@@ -1,6 +1,6 @@
 // src/components/Login.jsx
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 const Login = () => {
@@ -33,6 +33,11 @@ const Login = () => {
             Log In
           </button>
         </form>
+        <div className="mt-4 text-center">
+          <Link to="/forgot-password" className="text-sm italic">
+            Forgot Password?
+          </Link>
+        </div>
       </div>
     </div>
   );
